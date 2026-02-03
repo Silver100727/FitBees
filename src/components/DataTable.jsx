@@ -1,5 +1,26 @@
 import { motion } from 'framer-motion';
 import { MoreHorizontal, ArrowUpRight } from 'lucide-react';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  Button,
+  Badge,
+  Avatar,
+  AvatarFallback,
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from '@/components/ui';
 
 const customers = [
   {
@@ -69,72 +90,94 @@ const rowVariants = {
 export default function DataTable() {
   return (
     <motion.div
-      className="table-card"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5, duration: 0.4 }}
     >
-      <div className="table-header">
-        <h3 className="table-title">Recent Transactions</h3>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button className="btn btn-secondary">
-            Export
-            <ArrowUpRight size={14} />
-          </button>
-          <button className="btn btn-primary">
-            View All
-          </button>
-        </div>
-      </div>
-      <div className="table-wrapper">
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Customer</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Date</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {customers.map((customer, index) => (
-              <motion.tr
-                key={customer.id}
-                custom={index}
-                variants={rowVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <td>
-                  <div className="table-user">
-                    <div className="table-avatar">{customer.initials}</div>
-                    <div className="table-user-info">
-                      <div className="name">{customer.name}</div>
-                      <div className="email">{customer.email}</div>
+      <Card className="overflow-hidden hover:translate-y-0 hover:shadow-none">
+        <CardHeader className="flex-row items-center justify-between border-b border-border-default pb-4">
+          <CardTitle className="text-lg">Recent Transactions</CardTitle>
+          <div className="flex gap-2">
+            <Button variant="secondary" size="sm">
+              Export
+              <ArrowUpRight size={14} />
+            </Button>
+            <Button size="sm">
+              View All
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead>Customer</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead className="w-12"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {customers.map((customer, index) => (
+                <motion.tr
+                  key={customer.id}
+                  custom={index}
+                  variants={rowVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className="border-b border-border-subtle transition-colors hover:bg-bg-tertiary"
+                >
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-9 w-9">
+                        <AvatarFallback className="text-xs">
+                          {customer.initials}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="font-medium text-text-primary">
+                          {customer.name}
+                        </div>
+                        <div className="text-xs text-text-tertiary">
+                          {customer.email}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </td>
-                <td style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>
-                  {customer.amount}
-                </td>
-                <td>
-                  <span className={`status-badge ${customer.statusType}`}>
-                    <span className="status-dot" />
-                    {customer.status}
-                  </span>
-                </td>
-                <td>{customer.date}</td>
-                <td>
-                  <button className="icon-button" style={{ width: '32px', height: '32px' }}>
-                    <MoreHorizontal size={16} />
-                  </button>
-                </td>
-              </motion.tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                  </TableCell>
+                  <TableCell className="font-semibold text-text-primary">
+                    {customer.amount}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={customer.statusType} className="gap-1.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                      {customer.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{customer.date}</TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreHorizontal size={16} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>View details</DropdownMenuItem>
+                        <DropdownMenuItem>Edit transaction</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="text-error">
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </motion.tr>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </motion.div>
   );
 }

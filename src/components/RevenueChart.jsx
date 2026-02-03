@@ -9,6 +9,8 @@ import {
   Tooltip,
   ResponsiveContainer
 } from 'recharts';
+import { Card, CardHeader, CardTitle, CardContent, Button } from '@/components/ui';
+import { cn } from '@/lib/utils';
 
 const data = [
   { name: 'Jan', revenue: 4000, orders: 240 },
@@ -30,24 +32,14 @@ const filters = ['1W', '1M', '3M', '1Y', 'All'];
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div style={{
-        background: 'var(--color-bg-elevated)',
-        border: '1px solid var(--color-border)',
-        borderRadius: 'var(--radius-md)',
-        padding: '12px 16px',
-        boxShadow: 'var(--shadow-lg)'
-      }}>
-        <p style={{
-          color: 'var(--color-text-primary)',
-          fontWeight: 600,
-          marginBottom: '8px'
-        }}>
+      <div className="rounded-lg border border-border-default bg-bg-elevated px-4 py-3 shadow-lg">
+        <p className="mb-2 font-semibold text-text-primary">
           {label}
         </p>
-        <p style={{ color: 'var(--color-accent)', fontSize: '0.875rem' }}>
+        <p className="text-sm text-accent">
           Revenue: ${payload[0].value.toLocaleString()}
         </p>
-        <p style={{ color: 'var(--color-text-tertiary)', fontSize: '0.875rem' }}>
+        <p className="text-sm text-text-tertiary">
           Orders: {payload[1]?.value || 0}
         </p>
       </div>
@@ -61,68 +53,76 @@ export default function RevenueChart() {
 
   return (
     <motion.div
-      className="chart-card"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3, duration: 0.4 }}
     >
-      <div className="chart-header">
-        <h3 className="chart-title">Revenue Overview</h3>
-        <div className="chart-actions">
-          {filters.map((filter) => (
-            <button
-              key={filter}
-              className={`chart-filter ${activeFilter === filter ? 'active' : ''}`}
-              onClick={() => setActiveFilter(filter)}
-            >
-              {filter}
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className="chart-container">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-            <defs>
-              <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#d4af37" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#d4af37" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="rgba(255,255,255,0.05)"
-              vertical={false}
-            />
-            <XAxis
-              dataKey="name"
-              axisLine={false}
-              tickLine={false}
-              tick={{ fill: '#6e6e73', fontSize: 12 }}
-            />
-            <YAxis
-              axisLine={false}
-              tickLine={false}
-              tick={{ fill: '#6e6e73', fontSize: 12 }}
-              tickFormatter={(value) => `$${value / 1000}k`}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Area
-              type="monotone"
-              dataKey="revenue"
-              stroke="#d4af37"
-              strokeWidth={2}
-              fill="url(#revenueGradient)"
-            />
-            <Area
-              type="monotone"
-              dataKey="orders"
-              stroke="transparent"
-              fill="transparent"
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
+      <Card className="hover:translate-y-0 hover:shadow-none">
+        <CardHeader className="flex-row items-center justify-between pb-4">
+          <CardTitle>Revenue Overview</CardTitle>
+          <div className="flex gap-1">
+            {filters.map((filter) => (
+              <Button
+                key={filter}
+                variant="ghost"
+                size="sm"
+                onClick={() => setActiveFilter(filter)}
+                className={cn(
+                  "h-7 px-3 text-xs",
+                  activeFilter === filter && "bg-accent-glow text-accent border border-accent"
+                )}
+              >
+                {filter}
+              </Button>
+            ))}
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#d4af37" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#d4af37" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="rgba(255,255,255,0.05)"
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#6e6e73', fontSize: 12 }}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#6e6e73', fontSize: 12 }}
+                  tickFormatter={(value) => `$${value / 1000}k`}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Area
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="#d4af37"
+                  strokeWidth={2}
+                  fill="url(#revenueGradient)"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="orders"
+                  stroke="transparent"
+                  fill="transparent"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
     </motion.div>
   );
 }

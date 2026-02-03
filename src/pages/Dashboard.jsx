@@ -47,22 +47,25 @@ export default function Dashboard() {
     <>
       <Topbar title="Dashboard" />
       <motion.div
-        className="page-content"
+        className="p-6 max-w-full overflow-x-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="dashboard-grid">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
           {stats.map((stat, index) => (
             <StatCard key={stat.label} {...stat} delay={index * 0.1} />
           ))}
         </div>
 
-        <div className="charts-row">
+        {/* Charts Row */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
           <RevenueChart />
           <ActivityFeed />
         </div>
 
+        {/* Data Table */}
         <DataTable />
       </motion.div>
     </>
