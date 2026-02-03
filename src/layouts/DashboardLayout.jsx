@@ -34,9 +34,9 @@ export default function DashboardLayout() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--color-bg-primary)' }}>
+    <div className="h-screen overflow-hidden" style={{ background: 'var(--color-bg-primary)' }}>
       <Sidebar />
-      <main className="min-h-screen overflow-x-hidden" style={{ marginLeft: '220px', background: 'var(--color-bg-primary)' }}>
+      <main className="h-screen overflow-hidden" style={{ marginLeft: '220px', background: 'var(--color-bg-primary)' }}>
         <Topbar title={title} breadcrumbs={breadcrumbs} />
         <Outlet />
       </main>

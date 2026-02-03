@@ -5,6 +5,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import DashboardLayout from './layouts/DashboardLayout';
 import Dashboard from './pages/Dashboard';
 import Client from './pages/Client';
+import ClientProfile from './pages/ClientProfile';
 import Placeholder from './pages/Placeholder';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="client" element={<Client />} />
+            <Route path="client/:id" element={<ClientProfile />} />
             <Route path="staff-trainer" element={<Placeholder title="Staff Trainer" />} />
             <Route path="payments" element={<Placeholder title="Payments" />} />
             <Route path="reports" element={<Placeholder title="Reports" />} />

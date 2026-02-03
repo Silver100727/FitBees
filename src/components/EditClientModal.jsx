@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { UserPlus, Crown, Star, User, Eye, EyeOff } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Edit3, Crown, Star, User, Eye, EyeOff } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -20,7 +20,7 @@ import {
   DatePicker,
   NumberInput,
 } from '@/components/ui';
-import { useCreateClient } from '../hooks/useQueries';
+import { useUpdateClient } from '../hooks/useQueries';
 
 const membershipOptions = [
   { value: 'Premium', label: 'Premium', icon: Crown, color: 'var(--color-accent)' },
@@ -49,16 +49,21 @@ const goalOptions = [
   { value: 'General Fitness', label: 'General Fitness' },
 ];
 
+const statusOptions = [
+  { value: 'Active', label: 'Active' },
+  { value: 'Inactive', label: 'Inactive' },
+  { value: 'Expired', label: 'Expired' },
+];
+
 const inputStyle = {
   background: 'var(--color-bg-tertiary)',
   border: '1px solid var(--color-border-subtle)',
 };
 
-export default function AddClientModal({ open, onOpenChange }) {
+export default function EditClientModal({ open, onOpenChange, client }) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: '',
     phone: '',
     dateOfBirth: '',
     gender: '',
@@ -73,10 +78,34 @@ export default function AddClientModal({ open, onOpenChange }) {
     weight: '',
     height: '',
     notes: '',
+    status: 'Active',
   });
-  const [showPassword, setShowPassword] = useState(false);
 
-  const createClient = useCreateClient();
+  const updateClient = useUpdateClient();
+
+  useEffect(() => {
+    if (client) {
+      setFormData({
+        name: client.name || '',
+        email: client.email || '',
+        phone: client.phone || '',
+        dateOfBirth: client.dateOfBirth || '',
+        gender: client.gender || '',
+        address: client.address || '',
+        emergencyName: client.emergencyName || '',
+        emergencyPhone: client.emergencyPhone || '',
+        membership: client.membership || 'Standard',
+        membershipStart: client.membershipStart || '',
+        membershipEnd: client.membershipEnd || '',
+        trainer: client.trainer || '',
+        goal: client.goal || '',
+        weight: client.weight || '',
+        height: client.height || '',
+        notes: client.notes || '',
+        status: client.status || 'Active',
+      });
+    }
+  }, [client]);
 
   const handleChange = (field) => (e) => {
     setFormData((prev) => ({ ...prev, [field]: e.target.value }));
@@ -96,37 +125,12 @@ export default function AddClientModal({ open, onOpenChange }) {
       .toUpperCase()
       .slice(0, 2);
 
-    await createClient.mutateAsync({
+    await updateClient.mutateAsync({
+      id: client.id,
       ...formData,
       initials,
-      status: 'Active',
-      joinDate: new Date().toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      }),
-      lastVisit: 'Just now',
     });
 
-    setFormData({
-      name: '',
-      email: '',
-      password: '',
-      phone: '',
-      dateOfBirth: '',
-      gender: '',
-      address: '',
-      emergencyName: '',
-      emergencyPhone: '',
-      membership: 'Standard',
-      membershipStart: '',
-      membershipEnd: '',
-      trainer: '',
-      goal: '',
-      weight: '',
-      height: '',
-      notes: '',
-    });
     onOpenChange(false);
   };
 
@@ -148,6 +152,8 @@ export default function AddClientModal({ open, onOpenChange }) {
     </Label>
   );
 
+  if (!client) return null;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
@@ -160,9 +166,9 @@ export default function AddClientModal({ open, onOpenChange }) {
                 color: 'var(--color-accent)',
               }}
             >
-              <UserPlus size={14} />
+              <Edit3 size={14} />
             </div>
-            <DialogTitle className="text-sm">Add New Client</DialogTitle>
+            <DialogTitle className="text-sm">Edit Client</DialogTitle>
           </div>
         </DialogHeader>
 
@@ -210,7 +216,7 @@ export default function AddClientModal({ open, onOpenChange }) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
                   <FieldLabel>Email *</FieldLabel>
                   <Input
@@ -222,28 +228,6 @@ export default function AddClientModal({ open, onOpenChange }) {
                     className="h-8"
                     style={inputStyle}
                   />
-                </div>
-                <div className="space-y-1">
-                  <FieldLabel>Password *</FieldLabel>
-                  <div className="relative">
-                    <Input
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="••••••••"
-                      value={formData.password}
-                      onChange={handleChange('password')}
-                      required
-                      className="h-8 pr-8"
-                      style={inputStyle}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 transition-colors hover:opacity-70"
-                      style={{ color: 'var(--color-text-muted)' }}
-                    >
-                      {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
-                    </button>
-                  </div>
                 </div>
                 <div className="space-y-1">
                   <FieldLabel>Phone *</FieldLabel>
@@ -270,10 +254,10 @@ export default function AddClientModal({ open, onOpenChange }) {
                 />
               </div>
 
-              {/* Membership & Trainer */}
-              <SectionTitle>Membership & Trainer</SectionTitle>
+              {/* Membership & Status */}
+              <SectionTitle>Membership & Status</SectionTitle>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 <div className="space-y-1">
                   <FieldLabel>Membership Plan *</FieldLabel>
                   <Select value={formData.membership} onValueChange={handleSelectChange('membership')}>
@@ -292,6 +276,21 @@ export default function AddClientModal({ open, onOpenChange }) {
                           </SelectItem>
                         );
                       })}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <FieldLabel>Status *</FieldLabel>
+                  <Select value={formData.status} onValueChange={handleSelectChange('status')}>
+                    <SelectTrigger className="h-8">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {statusOptions.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -327,7 +326,7 @@ export default function AddClientModal({ open, onOpenChange }) {
 
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <FieldLabel>Membership Start *</FieldLabel>
+                  <FieldLabel>Membership Start</FieldLabel>
                   <DatePicker
                     value={formData.membershipStart}
                     onChange={handleSelectChange('membershipStart')}
@@ -336,7 +335,7 @@ export default function AddClientModal({ open, onOpenChange }) {
                   />
                 </div>
                 <div className="space-y-1">
-                  <FieldLabel>Membership End *</FieldLabel>
+                  <FieldLabel>Membership End</FieldLabel>
                   <DatePicker
                     value={formData.membershipEnd}
                     onChange={handleSelectChange('membershipEnd')}
@@ -458,13 +457,13 @@ export default function AddClientModal({ open, onOpenChange }) {
               type="submit"
               size="sm"
               className="h-7 text-xs px-3"
-              disabled={createClient.isPending}
+              disabled={updateClient.isPending}
               style={{
                 background: 'var(--color-accent)',
                 color: 'var(--color-bg-primary)',
               }}
             >
-              {createClient.isPending ? 'Adding...' : 'Add Client'}
+              {updateClient.isPending ? 'Saving...' : 'Save Changes'}
             </Button>
           </DialogFooter>
         </form>
