@@ -5,7 +5,6 @@ import {
   Dumbbell,
   Activity
 } from 'lucide-react';
-import Topbar from '../components/Topbar';
 import StatCard from '../components/StatCard';
 import { useDashboardStats } from '../hooks/useQueries';
 import { Skeleton } from '@/components/ui';
@@ -64,30 +63,27 @@ export default function Dashboard() {
   ] : [];
 
   return (
-    <>
-      <Topbar title="Dashboard" />
-      <motion.div
-        className="p-6 max-w-full overflow-x-hidden"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-      >
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-          {isLoading ? (
-            <>
-              <StatSkeleton />
-              <StatSkeleton />
-              <StatSkeleton />
-              <StatSkeleton />
-            </>
-          ) : (
-            statsData.map((stat, index) => (
-              <StatCard key={stat.label} {...stat} delay={index * 0.1} />
-            ))
-          )}
-        </div>
-      </motion.div>
-    </>
+    <motion.div
+      className="p-4 max-w-full overflow-x-hidden"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        {isLoading ? (
+          <>
+            <StatSkeleton />
+            <StatSkeleton />
+            <StatSkeleton />
+            <StatSkeleton />
+          </>
+        ) : (
+          statsData.map((stat, index) => (
+            <StatCard key={stat.label} {...stat} delay={index * 0.1} />
+          ))
+        )}
+      </div>
+    </motion.div>
   );
 }

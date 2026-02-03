@@ -6,7 +6,7 @@ const Input = React.forwardRef(({ className, type, ...props }, ref) => {
     <input
       type={type}
       className={cn(
-        "flex h-11 w-full rounded-lg px-4 py-3 text-base",
+        "flex h-9 w-full px-3 py-2 text-xs!",
         "transition-all duration-200",
         "focus:outline-none",
         "disabled:cursor-not-allowed disabled:opacity-50",
@@ -17,6 +17,7 @@ const Input = React.forwardRef(({ className, type, ...props }, ref) => {
         background: 'var(--color-bg-tertiary)',
         border: '1px solid var(--color-border-default)',
         color: 'var(--color-text-primary)',
+        fontSize: '0.75rem',
       }}
       ref={ref}
       {...props}

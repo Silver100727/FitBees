@@ -6,6 +6,7 @@ import {
   Dumbbell,
   CreditCard,
   FileText,
+  Globe,
   LogOut
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -28,6 +29,7 @@ const navItems = [
   { icon: Dumbbell, label: 'Staff Trainer', path: '/dashboard/staff-trainer' },
   { icon: CreditCard, label: 'Payments', path: '/dashboard/payments' },
   { icon: FileText, label: 'Reports', path: '/dashboard/reports' },
+  { icon: Globe, label: 'My Websites', path: '/dashboard/my-websites' },
 ];
 
 const sidebarVariants = {
