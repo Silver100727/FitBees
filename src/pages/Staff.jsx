@@ -22,6 +22,7 @@ import {
   Heart,
   Zap,
   Target,
+  Wallet,
 } from 'lucide-react';
 import {
   Avatar,
@@ -36,6 +37,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui';
 import AddTrainerModal from '../components/AddTrainerModal';
+import ProcessSalaryModal from '../components/ProcessSalaryModal';
 
 // Mock trainer data
 const trainersData = [
@@ -202,7 +204,7 @@ const specialtyIcons = {
   'Senior Fitness': Users,
 };
 
-function TrainerCard({ trainer, index }) {
+function TrainerCard({ trainer, index, onPaySalary }) {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -403,6 +405,14 @@ function TrainerCard({ trainer, index }) {
                 <Edit2 size={12} />
                 Edit Trainer
               </DropdownMenuItem>
+              <DropdownMenuItem
+                className="gap-2 text-xs cursor-pointer"
+                onClick={() => onPaySalary && onPaySalary(trainer)}
+                style={{ color: 'var(--color-success)' }}
+              >
+                <Wallet size={12} />
+                Pay Salary
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="gap-2 text-xs cursor-pointer"
@@ -436,33 +446,61 @@ function TrainerCard({ trainer, index }) {
 
 function StatCard({ icon: Icon, label, value, color, subValue }) {
   return (
-    <div
-      className="p-3 flex items-center gap-3"
-      style={{
-        background: 'var(--color-bg-secondary)',
-        borderLeft: `3px solid ${color}`,
-      }}
+    <motion.div
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      className="group relative"
     >
       <div
-        className="h-10 w-10 flex items-center justify-center"
-        style={{ background: `${color}15` }}
+        className="relative overflow-hidden"
+        style={{
+          background: 'var(--color-bg-secondary)',
+          borderLeft: `3px solid ${color}`,
+        }}
       >
-        <Icon size={18} style={{ color }} />
+        {/* Subtle diagonal accent */}
+        <div
+          className="absolute -right-8 -top-8 h-24 w-24 opacity-[0.03] transition-opacity group-hover:opacity-[0.06]"
+          style={{
+            background: color,
+            transform: 'rotate(45deg)',
+          }}
+        />
+
+        <div className="relative px-4 py-3 h-18 flex flex-col justify-center">
+          {/* Label row with icon */}
+          <div className="flex items-center justify-between mb-1">
+            <span
+              className="text-[10px] font-semibold uppercase tracking-[0.15em]"
+              style={{ color: 'var(--color-text-muted)' }}
+            >
+              {label}
+            </span>
+            <Icon
+              size={14}
+              className="opacity-30 group-hover:opacity-50 transition-opacity"
+              style={{ color }}
+            />
+          </div>
+
+          {/* Value */}
+          <div className="flex items-baseline gap-2">
+            <div
+              className="font-display text-2xl font-light tracking-tight"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              {value}
+            </div>
+            {subValue && (
+              <span className="text-xs font-medium" style={{ color }}>
+                {subValue}
+              </span>
+            )}
+          </div>
+        </div>
       </div>
-      <div>
-        <div className="text-xl font-semibold" style={{ color: 'var(--color-text-primary)' }}>
-          {value}
-        </div>
-        <div className="text-[0.6rem] uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
-          {label}
-        </div>
-      </div>
-      {subValue && (
-        <div className="ml-auto text-xs font-medium" style={{ color }}>
-          {subValue}
-        </div>
-      )}
-    </div>
+    </motion.div>
   );
 }
 
@@ -471,6 +509,13 @@ export default function Staff() {
   const [filterStatus, setFilterStatus] = useState('all');
   const [viewMode, setViewMode] = useState('grid');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isSalaryModalOpen, setIsSalaryModalOpen] = useState(false);
+  const [selectedTrainerForSalary, setSelectedTrainerForSalary] = useState(null);
+
+  const handlePaySalary = (trainer) => {
+    setSelectedTrainerForSalary(trainer?.id?.toString() || null);
+    setIsSalaryModalOpen(true);
+  };
 
   const filteredTrainers = useMemo(() => {
     return trainersData.filter((trainer) => {
@@ -507,18 +552,32 @@ export default function Staff() {
             Manage your fitness team
           </p>
         </div>
-        <Button
-          size="sm"
-          className="h-8 gap-1.5 text-xs"
-          onClick={() => setIsAddModalOpen(true)}
-          style={{
-            background: 'var(--color-accent)',
-            color: 'var(--color-bg-primary)',
-          }}
-        >
-          <Plus size={12} />
-          Add Trainer
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            className="h-8 gap-1.5 text-xs"
+            onClick={() => handlePaySalary(null)}
+            style={{
+              background: 'var(--color-success)',
+              color: 'white',
+            }}
+          >
+            <Wallet size={12} />
+            Process Salary
+          </Button>
+          <Button
+            size="sm"
+            className="h-8 gap-1.5 text-xs"
+            onClick={() => setIsAddModalOpen(true)}
+            style={{
+              background: 'var(--color-accent)',
+              color: 'var(--color-bg-primary)',
+            }}
+          >
+            <Plus size={12} />
+            Add Trainer
+          </Button>
+        </div>
       </div>
 
       {/* Stats Row */}
@@ -628,7 +687,7 @@ export default function Staff() {
       {/* Trainers Grid */}
       <div className={viewMode === 'grid' ? 'grid grid-cols-4 gap-4' : 'flex flex-col gap-3'}>
         {filteredTrainers.map((trainer, index) => (
-          <TrainerCard key={trainer.id} trainer={trainer} index={index} />
+          <TrainerCard key={trainer.id} trainer={trainer} index={index} onPaySalary={handlePaySalary} />
         ))}
       </div>
 
@@ -644,6 +703,16 @@ export default function Staff() {
 
       {/* Add Trainer Modal */}
       <AddTrainerModal open={isAddModalOpen} onOpenChange={setIsAddModalOpen} />
+
+      {/* Process Salary Modal */}
+      <ProcessSalaryModal
+        open={isSalaryModalOpen}
+        onOpenChange={(open) => {
+          setIsSalaryModalOpen(open);
+          if (!open) setSelectedTrainerForSalary(null);
+        }}
+        preSelectedTrainer={selectedTrainerForSalary}
+      />
     </motion.div>
   );
 }
