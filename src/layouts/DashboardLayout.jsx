@@ -8,8 +8,11 @@ export default function DashboardLayout() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-bg-tertiary border-t-accent" />
+      <div className="flex min-h-screen items-center justify-center" style={{ background: 'var(--color-bg-primary)' }}>
+        <div
+          className="h-10 w-10 animate-spin rounded-full"
+          style={{ border: '2px solid var(--color-bg-tertiary)', borderTopColor: 'var(--color-accent)' }}
+        />
       </div>
     );
   }
@@ -19,9 +22,9 @@ export default function DashboardLayout() {
   }
 
   return (
-    <div className="grid min-h-screen grid-cols-[280px_1fr]">
+    <div className="min-h-screen" style={{ background: 'var(--color-bg-primary)' }}>
       <Sidebar />
-      <main className="ml-70 min-h-screen overflow-x-hidden bg-background">
+      <main className="min-h-screen overflow-x-hidden" style={{ marginLeft: '220px', background: 'var(--color-bg-primary)' }}>
         <Outlet />
       </main>
       <div className="noise-overlay" />

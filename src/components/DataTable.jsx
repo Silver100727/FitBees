@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { MoreHorizontal, ArrowUpRight } from 'lucide-react';
+import { MoreHorizontal, ArrowUpRight, RefreshCw } from 'lucide-react';
 import {
   Card,
   CardHeader,
@@ -20,60 +20,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  Skeleton,
 } from '@/components/ui';
-
-const customers = [
-  {
-    id: 1,
-    name: 'Victoria Chen',
-    email: 'v.chen@example.com',
-    initials: 'VC',
-    amount: '$12,450',
-    status: 'Completed',
-    statusType: 'success',
-    date: 'Dec 24, 2024'
-  },
-  {
-    id: 2,
-    name: 'Marcus Thompson',
-    email: 'm.thompson@example.com',
-    initials: 'MT',
-    amount: '$8,900',
-    status: 'Processing',
-    statusType: 'warning',
-    date: 'Dec 23, 2024'
-  },
-  {
-    id: 3,
-    name: 'Alexandra Mills',
-    email: 'a.mills@example.com',
-    initials: 'AM',
-    amount: '$6,250',
-    status: 'Completed',
-    statusType: 'success',
-    date: 'Dec 22, 2024'
-  },
-  {
-    id: 4,
-    name: 'James Sterling',
-    email: 'j.sterling@example.com',
-    initials: 'JS',
-    amount: '$15,800',
-    status: 'Pending',
-    statusType: 'info',
-    date: 'Dec 21, 2024'
-  },
-  {
-    id: 5,
-    name: 'Elena Rodriguez',
-    email: 'e.rodriguez@example.com',
-    initials: 'ER',
-    amount: '$4,200',
-    status: 'Failed',
-    statusType: 'error',
-    date: 'Dec 20, 2024'
-  }
-];
+import { useTransactions } from '@/hooks/useQueries';
 
 const rowVariants = {
   hidden: { opacity: 0, y: 10 },
@@ -87,7 +36,34 @@ const rowVariants = {
   })
 };
 
+function TableSkeleton() {
+  return (
+    <>
+      {[...Array(5)].map((_, i) => (
+        <TableRow key={i} className="border-b border-border-subtle">
+          <TableCell>
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-9 w-9 rounded-full" />
+              <div>
+                <Skeleton className="h-4 w-28 mb-1" />
+                <Skeleton className="h-3 w-36" />
+              </div>
+            </div>
+          </TableCell>
+          <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+          <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
+          <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+          <TableCell><Skeleton className="h-8 w-8 rounded" /></TableCell>
+        </TableRow>
+      ))}
+    </>
+  );
+}
+
 export default function DataTable() {
+  const { data, isLoading, error, refetch, isFetching } = useTransactions();
+  const transactions = data?.data || [];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -95,9 +71,17 @@ export default function DataTable() {
       transition={{ delay: 0.5, duration: 0.4 }}
     >
       <Card className="overflow-hidden hover:translate-y-0 hover:shadow-none">
-        <CardHeader className="flex-row items-center justify-between border-b border-border-default pb-4">
+        <CardHeader className="flex-row items-center justify-between border-b pb-4" style={{ borderColor: 'var(--color-border-default)' }}>
           <CardTitle className="text-lg">Recent Transactions</CardTitle>
           <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => refetch()}
+              disabled={isFetching}
+            >
+              <RefreshCw size={14} className={isFetching ? 'animate-spin' : ''} />
+            </Button>
             <Button variant="secondary" size="sm">
               Export
               <ArrowUpRight size={14} />
@@ -110,7 +94,7 @@ export default function DataTable() {
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow className="hover:bg-transparent">
+              <TableRow style={{ background: 'var(--color-bg-tertiary)' }}>
                 <TableHead>Customer</TableHead>
                 <TableHead>Amount</TableHead>
                 <TableHead>Status</TableHead>
@@ -119,61 +103,80 @@ export default function DataTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {customers.map((customer, index) => (
-                <motion.tr
-                  key={customer.id}
-                  custom={index}
-                  variants={rowVariants}
-                  initial="hidden"
-                  animate="visible"
-                  className="border-b border-border-subtle transition-colors hover:bg-bg-tertiary"
-                >
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-9 w-9">
-                        <AvatarFallback className="text-xs">
-                          {customer.initials}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-medium text-text-primary">
-                          {customer.name}
-                        </div>
-                        <div className="text-xs text-text-tertiary">
-                          {customer.email}
+              {isLoading ? (
+                <TableSkeleton />
+              ) : error ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-8" style={{ color: 'var(--color-error)' }}>
+                    Failed to load transactions. Please try again.
+                  </TableCell>
+                </TableRow>
+              ) : transactions.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-8" style={{ color: 'var(--color-text-tertiary)' }}>
+                    No transactions found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                transactions.map((customer, index) => (
+                  <motion.tr
+                    key={customer.id}
+                    custom={index}
+                    variants={rowVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="border-b transition-colors"
+                    style={{ borderColor: 'var(--color-border-subtle)' }}
+                  >
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-9 w-9">
+                          <AvatarFallback className="text-xs">
+                            {customer.initials}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                            {customer.name}
+                          </div>
+                          <div className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>
+                            {customer.email}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-semibold text-text-primary">
-                    {customer.amount}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={customer.statusType} className="gap-1.5">
-                      <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                      {customer.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{customer.date}</TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal size={16} />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>View details</DropdownMenuItem>
-                        <DropdownMenuItem>Edit transaction</DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-error">
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </motion.tr>
-              ))}
+                    </TableCell>
+                    <TableCell className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                      {customer.amount}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={customer.statusType} className="gap-1.5">
+                        <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                        {customer.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell style={{ color: 'var(--color-text-secondary)' }}>
+                      {customer.date}
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal size={16} />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>View details</DropdownMenuItem>
+                          <DropdownMenuItem>Edit transaction</DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem style={{ color: 'var(--color-error)' }}>
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </motion.tr>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>

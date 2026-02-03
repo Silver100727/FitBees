@@ -6,14 +6,14 @@ const api = {
     // Simulated API delay
     await new Promise(resolve => setTimeout(resolve, 500));
     return {
-      totalRevenue: '$84,254',
-      totalCustomers: '2,345',
-      totalOrders: '1,247',
-      conversionRate: '18.2%',
-      revenueChange: '+12.5%',
-      customersChange: '+8.2%',
-      ordersChange: '+23.1%',
-      conversionChange: '-2.4%',
+      totalClients: '1,248',
+      activeClients: '892',
+      totalTrainers: '45',
+      activeTrainers: '38',
+      totalClientsChange: '+12.5%',
+      activeClientsChange: '+8.2%',
+      totalTrainersChange: '+4.5%',
+      activeTrainersChange: '+2.1%',
     };
   },
 

@@ -1,48 +1,68 @@
 import { motion } from 'framer-motion';
 import {
-  DollarSign,
   Users,
-  ShoppingBag,
-  TrendingUp
+  UserCheck,
+  Dumbbell,
+  Activity
 } from 'lucide-react';
 import Topbar from '../components/Topbar';
 import StatCard from '../components/StatCard';
-import RevenueChart from '../components/RevenueChart';
-import ActivityFeed from '../components/ActivityFeed';
-import DataTable from '../components/DataTable';
+import { useDashboardStats } from '../hooks/useQueries';
+import { Skeleton } from '@/components/ui';
 
-const stats = [
-  {
-    icon: DollarSign,
-    value: '$84,254',
-    label: 'Total Revenue',
-    change: '+12.5%',
-    changeType: 'positive'
-  },
-  {
-    icon: Users,
-    value: '2,345',
-    label: 'Total Customers',
-    change: '+8.2%',
-    changeType: 'positive'
-  },
-  {
-    icon: ShoppingBag,
-    value: '1,247',
-    label: 'Total Orders',
-    change: '+23.1%',
-    changeType: 'positive'
-  },
-  {
-    icon: TrendingUp,
-    value: '18.2%',
-    label: 'Conversion Rate',
-    change: '-2.4%',
-    changeType: 'negative'
-  }
-];
+function StatSkeleton() {
+  return (
+    <div
+      className="px-4 py-3"
+      style={{
+        background: 'var(--color-bg-secondary)',
+        borderLeft: '3px solid var(--color-bg-tertiary)',
+      }}
+    >
+      <div className="flex items-center justify-between mb-1">
+        <Skeleton className="h-2.5 w-16" />
+        <Skeleton className="h-3 w-3" />
+      </div>
+      <Skeleton className="h-8 w-20 mb-1" />
+      <Skeleton className="h-2.5 w-24" />
+    </div>
+  );
+}
 
 export default function Dashboard() {
+  const { data: stats, isLoading, error } = useDashboardStats();
+
+  const statsData = stats ? [
+    {
+      icon: Users,
+      value: stats.totalClients,
+      label: 'Total Client',
+      change: stats.totalClientsChange,
+      changeType: stats.totalClientsChange?.startsWith('+') ? 'positive' : 'negative'
+    },
+    {
+      icon: UserCheck,
+      value: stats.activeClients,
+      label: 'Active Client',
+      change: stats.activeClientsChange,
+      changeType: stats.activeClientsChange?.startsWith('+') ? 'positive' : 'negative'
+    },
+    {
+      icon: Dumbbell,
+      value: stats.totalTrainers,
+      label: 'Total Trainer',
+      change: stats.totalTrainersChange,
+      changeType: stats.totalTrainersChange?.startsWith('+') ? 'positive' : 'negative'
+    },
+    {
+      icon: Activity,
+      value: stats.activeTrainers,
+      label: 'Active Trainer',
+      change: stats.activeTrainersChange,
+      changeType: stats.activeTrainersChange?.startsWith('+') ? 'positive' : 'negative'
+    }
+  ] : [];
+
   return (
     <>
       <Topbar title="Dashboard" />
@@ -53,20 +73,20 @@ export default function Dashboard() {
         transition={{ duration: 0.3 }}
       >
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
-          {stats.map((stat, index) => (
-            <StatCard key={stat.label} {...stat} delay={index * 0.1} />
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          {isLoading ? (
+            <>
+              <StatSkeleton />
+              <StatSkeleton />
+              <StatSkeleton />
+              <StatSkeleton />
+            </>
+          ) : (
+            statsData.map((stat, index) => (
+              <StatCard key={stat.label} {...stat} delay={index * 0.1} />
+            ))
+          )}
         </div>
-
-        {/* Charts Row */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
-          <RevenueChart />
-          <ActivityFeed />
-        </div>
-
-        {/* Data Table */}
-        <DataTable />
       </motion.div>
     </>
   );

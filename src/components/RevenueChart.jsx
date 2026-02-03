@@ -9,37 +9,29 @@ import {
   Tooltip,
   ResponsiveContainer
 } from 'recharts';
-import { Card, CardHeader, CardTitle, CardContent, Button } from '@/components/ui';
+import { Card, CardHeader, CardTitle, CardContent, Button, Skeleton } from '@/components/ui';
+import { useRevenueData } from '@/hooks/useQueries';
 import { cn } from '@/lib/utils';
-
-const data = [
-  { name: 'Jan', revenue: 4000, orders: 240 },
-  { name: 'Feb', revenue: 3000, orders: 198 },
-  { name: 'Mar', revenue: 5000, orders: 320 },
-  { name: 'Apr', revenue: 4500, orders: 278 },
-  { name: 'May', revenue: 6000, orders: 389 },
-  { name: 'Jun', revenue: 5500, orders: 349 },
-  { name: 'Jul', revenue: 7000, orders: 420 },
-  { name: 'Aug', revenue: 6500, orders: 398 },
-  { name: 'Sep', revenue: 8000, orders: 489 },
-  { name: 'Oct', revenue: 7500, orders: 456 },
-  { name: 'Nov', revenue: 9000, orders: 534 },
-  { name: 'Dec', revenue: 8500, orders: 510 },
-];
 
 const filters = ['1W', '1M', '3M', '1Y', 'All'];
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="rounded-lg border border-border-default bg-bg-elevated px-4 py-3 shadow-lg">
-        <p className="mb-2 font-semibold text-text-primary">
+      <div
+        className="rounded-lg px-4 py-3 shadow-lg"
+        style={{
+          background: 'var(--color-bg-elevated)',
+          border: '1px solid var(--color-border-default)'
+        }}
+      >
+        <p className="mb-2 font-semibold" style={{ color: 'var(--color-text-primary)' }}>
           {label}
         </p>
-        <p className="text-sm text-accent">
+        <p className="text-sm" style={{ color: 'var(--color-accent)' }}>
           Revenue: ${payload[0].value.toLocaleString()}
         </p>
-        <p className="text-sm text-text-tertiary">
+        <p className="text-sm" style={{ color: 'var(--color-text-tertiary)' }}>
           Orders: {payload[1]?.value || 0}
         </p>
       </div>
@@ -48,8 +40,26 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
+function ChartSkeleton() {
+  return (
+    <div className="h-[300px] flex flex-col justify-end gap-2 p-4">
+      <div className="flex items-end gap-2 h-full">
+        {[40, 60, 45, 80, 55, 70, 90, 65, 85, 75, 95, 88].map((h, i) => (
+          <Skeleton key={i} className="flex-1 rounded-t" style={{ height: `${h}%` }} />
+        ))}
+      </div>
+      <div className="flex justify-between mt-2">
+        {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map((m) => (
+          <Skeleton key={m} className="h-3 w-6" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function RevenueChart() {
   const [activeFilter, setActiveFilter] = useState('1Y');
+  const { data, isLoading, error } = useRevenueData(activeFilter);
 
   return (
     <motion.div
@@ -67,10 +77,12 @@ export default function RevenueChart() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setActiveFilter(filter)}
-                className={cn(
-                  "h-7 px-3 text-xs",
-                  activeFilter === filter && "bg-accent-glow text-accent border border-accent"
-                )}
+                className={cn("h-7 px-3 text-xs")}
+                style={activeFilter === filter ? {
+                  background: 'var(--color-accent-glow)',
+                  color: 'var(--color-accent)',
+                  border: '1px solid var(--color-accent)'
+                } : {}}
               >
                 {filter}
               </Button>
@@ -78,49 +90,57 @@ export default function RevenueChart() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#d4af37" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#d4af37" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="rgba(255,255,255,0.05)"
-                  vertical={false}
-                />
-                <XAxis
-                  dataKey="name"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: '#6e6e73', fontSize: 12 }}
-                />
-                <YAxis
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: '#6e6e73', fontSize: 12 }}
-                  tickFormatter={(value) => `$${value / 1000}k`}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Area
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="#d4af37"
-                  strokeWidth={2}
-                  fill="url(#revenueGradient)"
-                />
-                <Area
-                  type="monotone"
-                  dataKey="orders"
-                  stroke="transparent"
-                  fill="transparent"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+          {isLoading ? (
+            <ChartSkeleton />
+          ) : error ? (
+            <div className="h-[300px] flex items-center justify-center" style={{ color: 'var(--color-text-tertiary)' }}>
+              Failed to load chart data
+            </div>
+          ) : (
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#d4af37" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#d4af37" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="rgba(255,255,255,0.05)"
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="name"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#6e6e73', fontSize: 12 }}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#6e6e73', fontSize: 12 }}
+                    tickFormatter={(value) => `$${value / 1000}k`}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Area
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#d4af37"
+                    strokeWidth={2}
+                    fill="url(#revenueGradient)"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="orders"
+                    stroke="transparent"
+                    fill="transparent"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </CardContent>
       </Card>
     </motion.div>

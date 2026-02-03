@@ -1,45 +1,15 @@
 import { motion } from 'framer-motion';
 import { DollarSign, UserPlus, AlertCircle, Package } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent, Button } from '@/components/ui';
+import { Card, CardHeader, CardTitle, CardContent, Button, Skeleton } from '@/components/ui';
+import { useActivities } from '@/hooks/useQueries';
 import { cn } from '@/lib/utils';
 
-const activities = [
-  {
-    id: 1,
-    type: 'sale',
-    icon: DollarSign,
-    text: '<strong>New order</strong> received from Victoria Chen for $2,450',
-    time: '2 minutes ago'
-  },
-  {
-    id: 2,
-    type: 'user',
-    icon: UserPlus,
-    text: '<strong>New customer</strong> registered: Marcus Thompson',
-    time: '15 minutes ago'
-  },
-  {
-    id: 3,
-    type: 'alert',
-    icon: AlertCircle,
-    text: '<strong>Low stock alert</strong> for Premium Collection items',
-    time: '1 hour ago'
-  },
-  {
-    id: 4,
-    type: 'sale',
-    icon: DollarSign,
-    text: '<strong>Payment received</strong> of $8,900 from Sterling Corp',
-    time: '2 hours ago'
-  },
-  {
-    id: 5,
-    type: 'user',
-    icon: Package,
-    text: '<strong>Order shipped</strong> to Alexandra Mills - Express delivery',
-    time: '3 hours ago'
-  }
-];
+const iconMap = {
+  sale: DollarSign,
+  user: UserPlus,
+  alert: AlertCircle,
+  shipped: Package,
+};
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -56,13 +26,32 @@ const itemVariants = {
   visible: { opacity: 1, x: 0 }
 };
 
-const iconStyles = {
-  sale: 'bg-success/10 text-success',
-  user: 'bg-info/10 text-info',
-  alert: 'bg-warning/10 text-warning',
+const iconColorStyles = {
+  sale: { background: 'rgba(52, 199, 89, 0.1)', color: 'var(--color-success)' },
+  user: { background: 'rgba(100, 210, 255, 0.1)', color: 'var(--color-info)' },
+  alert: { background: 'rgba(255, 159, 10, 0.1)', color: 'var(--color-warning)' },
+  shipped: { background: 'rgba(100, 210, 255, 0.1)', color: 'var(--color-info)' },
 };
 
+function ActivitySkeleton() {
+  return (
+    <div className="flex flex-col">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div key={i} className="flex gap-3 py-3 border-b" style={{ borderColor: 'var(--color-border-subtle)' }}>
+          <Skeleton className="h-9 w-9 shrink-0 rounded-full" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-3 w-20" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function ActivityFeed() {
+  const { data: activities, isLoading, error } = useActivities();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -77,36 +66,54 @@ export default function ActivityFeed() {
           </Button>
         </CardHeader>
         <CardContent>
-          <motion.div
-            className="flex flex-col"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            {activities.map((activity) => (
-              <motion.div
-                key={activity.id}
-                className="flex gap-3 border-b border-border-subtle py-3 last:border-0"
-                variants={itemVariants}
-              >
-                <div className={cn(
-                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
-                  iconStyles[activity.type]
-                )}>
-                  <activity.icon size={16} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p
-                    className="text-sm text-text-secondary leading-relaxed [&_strong]:font-semibold [&_strong]:text-text-primary"
-                    dangerouslySetInnerHTML={{ __html: activity.text }}
-                  />
-                  <span className="mt-1 block text-xs text-text-muted">
-                    {activity.time}
-                  </span>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
+          {isLoading ? (
+            <ActivitySkeleton />
+          ) : error ? (
+            <div className="h-75 flex items-center justify-center" style={{ color: 'var(--color-text-tertiary)' }}>
+              Failed to load activities
+            </div>
+          ) : (
+            <motion.div
+              className="flex flex-col"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              {activities?.map((activity) => {
+                const IconComponent = iconMap[activity.type] || DollarSign;
+                const iconStyle = iconColorStyles[activity.type] || iconColorStyles.sale;
+
+                return (
+                  <motion.div
+                    key={activity.id}
+                    className="flex gap-3 py-3 last:border-0"
+                    style={{ borderBottom: '1px solid var(--color-border-subtle)' }}
+                    variants={itemVariants}
+                  >
+                    <div
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+                      style={iconStyle}
+                    >
+                      <IconComponent size={16} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className="text-sm leading-relaxed"
+                        style={{ color: 'var(--color-text-secondary)' }}
+                        dangerouslySetInnerHTML={{ __html: activity.text }}
+                      />
+                      <span
+                        className="mt-1 block text-xs"
+                        style={{ color: 'var(--color-text-muted)' }}
+                      >
+                        {activity.time}
+                      </span>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          )}
         </CardContent>
       </Card>
     </motion.div>
