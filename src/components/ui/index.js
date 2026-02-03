@@ -56,3 +56,4 @@ export {
 } from './select'
 export { DatePicker } from './date-picker'
 export { NumberInput } from './number-input'
+export { Textarea } from './textarea'

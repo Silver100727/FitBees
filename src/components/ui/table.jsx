@@ -2,13 +2,11 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 const Table = React.forwardRef(({ className, ...props }, ref) => (
-  <div className="relative w-full overflow-auto">
-    <table
-      ref={ref}
-      className={cn("w-full caption-bottom text-sm", className)}
-      {...props}
-    />
-  </div>
+  <table
+    ref={ref}
+    className={cn("w-full caption-bottom text-sm", className)}
+    {...props}
+  />
 ))
 Table.displayName = "Table"
 
@@ -55,8 +53,9 @@ const TableHead = React.forwardRef(({ className, ...props }, ref) => (
   <th
     ref={ref}
     className={cn(
-      "h-11 px-4 text-left align-middle font-bold text-[0.6875rem] uppercase tracking-[0.1em] text-text-muted",
+      "h-8 px-3 text-left align-middle font-bold text-[0.6rem] uppercase tracking-[0.1em] text-text-muted",
       "bg-bg-tertiary border-b border-border-default",
+      "sticky top-0 z-10",
       "[&:has([role=checkbox])]:pr-0",
       className
     )}
@@ -69,7 +68,7 @@ const TableCell = React.forwardRef(({ className, ...props }, ref) => (
   <td
     ref={ref}
     className={cn(
-      "px-4 py-3 align-middle text-sm text-text-secondary",
+      "px-3 py-2 align-middle text-xs text-text-secondary",
       "[&:has([role=checkbox])]:pr-0",
       className
     )}

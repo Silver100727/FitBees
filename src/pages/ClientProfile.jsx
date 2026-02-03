@@ -155,7 +155,7 @@ export default function ClientProfile() {
 
   return (
     <motion.div
-      className="p-4"
+      className="p-4 h-[calc(100vh-41px)] overflow-y-auto"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
