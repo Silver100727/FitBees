@@ -411,6 +411,8 @@
   margin-left: 280px;
   min-height: 100vh;
   background: var(--color-bg-primary);
+  overflow-x: hidden;
+  width: calc(100% - 280px);
 }
 
 .topbar {
@@ -530,6 +532,8 @@
 
 .page-content {
   padding: var(--space-xl);
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 /* ========================================
@@ -538,7 +542,7 @@
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: var(--space-lg);
   margin-bottom: var(--space-xl);
 }
@@ -634,7 +638,7 @@
 
 .charts-row {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: var(--space-lg);
   margin-bottom: var(--space-xl);
 }

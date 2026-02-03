@@ -3,44 +3,19 @@ import { motion } from 'framer-motion';
 import {
   LayoutDashboard,
   Users,
-  ShoppingCart,
-  BarChart3,
-  FileText,
-  Settings,
-  HelpCircle,
-  LogOut,
+  Dumbbell,
   CreditCard,
-  Package,
-  Bell
+  FileText,
+  LogOut
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const navItems = [
-  {
-    section: 'Main',
-    items: [
-      { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
-      { icon: BarChart3, label: 'Analytics', path: '/dashboard/analytics' },
-      { icon: ShoppingCart, label: 'Orders', path: '/dashboard/orders', badge: '12' },
-      { icon: Package, label: 'Products', path: '/dashboard/products' },
-    ]
-  },
-  {
-    section: 'Management',
-    items: [
-      { icon: Users, label: 'Customers', path: '/dashboard/customers' },
-      { icon: CreditCard, label: 'Transactions', path: '/dashboard/transactions' },
-      { icon: FileText, label: 'Reports', path: '/dashboard/reports' },
-    ]
-  },
-  {
-    section: 'System',
-    items: [
-      { icon: Bell, label: 'Notifications', path: '/dashboard/notifications', badge: '3' },
-      { icon: Settings, label: 'Settings', path: '/dashboard/settings' },
-      { icon: HelpCircle, label: 'Help Center', path: '/dashboard/help' },
-    ]
-  }
+  { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
+  { icon: Users, label: 'Client', path: '/dashboard/client' },
+  { icon: Dumbbell, label: 'Staff Trainer', path: '/dashboard/staff-trainer' },
+  { icon: CreditCard, label: 'Payments', path: '/dashboard/payments' },
+  { icon: FileText, label: 'Reports', path: '/dashboard/reports' },
 ];
 
 const sidebarVariants = {
@@ -86,27 +61,19 @@ export default function Sidebar() {
       </div>
 
       <nav className="sidebar-nav">
-        {navItems.map((section, sectionIndex) => (
-          <motion.div
-            key={section.section}
-            className="nav-section"
-            variants={itemVariants}
-          >
-            <span className="nav-section-title">{section.section}</span>
-            {section.items.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-                end={item.path === '/dashboard'}
-              >
-                <item.icon className="nav-icon" size={20} />
-                <span>{item.label}</span>
-                {item.badge && <span className="nav-badge">{item.badge}</span>}
-              </NavLink>
-            ))}
-          </motion.div>
-        ))}
+        <motion.div variants={itemVariants}>
+          {navItems.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+              end={item.path === '/dashboard'}
+            >
+              <item.icon className="nav-icon" size={20} />
+              <span>{item.label}</span>
+            </NavLink>
+          ))}
+        </motion.div>
       </nav>
 
       <div className="sidebar-footer">
@@ -124,11 +91,6 @@ export default function Sidebar() {
           </div>
           <button
             onClick={handleLogout}
-            style={{
-              padding: '8px',
-              borderRadius: '8px',
-              transition: 'background 0.2s'
-            }}
             className="icon-button"
             title="Sign out"
           >
