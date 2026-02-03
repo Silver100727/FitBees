@@ -1,0 +1,19 @@
+import * as React from "react"
+import * as LabelPrimitive from "@radix-ui/react-label"
+import { cn } from "@/lib/utils"
+
+const Label = React.forwardRef(({ className, ...props }, ref) => (
+  <LabelPrimitive.Root
+    ref={ref}
+    className={cn(
+      "text-xs font-semibold uppercase tracking-[0.1em] leading-none",
+      "peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+      className
+    )}
+    style={{ color: 'var(--color-text-tertiary)' }}
+    {...props}
+  />
+))
+Label.displayName = LabelPrimitive.Root.displayName
+
+export { Label }
