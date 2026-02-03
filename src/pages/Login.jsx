@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { Button, Input, Label, Checkbox } from '@/components/ui';
+import { cn } from '@/lib/utils';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -30,15 +32,40 @@ export default function Login() {
   };
 
   return (
-    <div className="login-page">
+    <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2 bg-background">
+      {/* Left visual panel */}
       <motion.div
-        className="login-visual"
+        className="relative hidden lg:flex items-center justify-center overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, var(--color-bg-secondary) 0%, var(--color-bg-primary) 100%)'
+        }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
       >
-        <div className="login-brand">
+        {/* Animated glow */}
+        <div
+          className="absolute h-[600px] w-[600px] rounded-full animate-pulse"
+          style={{
+            background: 'radial-gradient(circle, var(--color-accent-glow) 0%, transparent 70%)'
+          }}
+        />
+
+        {/* Grid pattern */}
+        <div
+          className="absolute inset-0 opacity-30"
+          style={{
+            backgroundImage: `
+              linear-gradient(45deg, transparent 49%, rgba(255,255,255,0.03) 49%, rgba(255,255,255,0.03) 51%, transparent 51%),
+              linear-gradient(-45deg, transparent 49%, rgba(255,255,255,0.03) 49%, rgba(255,255,255,0.03) 51%, transparent 51%)
+            `,
+            backgroundSize: '60px 60px'
+          }}
+        />
+
+        <div className="relative z-10 text-center">
           <motion.h1
+            className="font-display text-7xl font-light tracking-[0.2em] uppercase text-text-primary mb-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.8 }}
@@ -46,6 +73,7 @@ export default function Login() {
             FitBees
           </motion.h1>
           <motion.span
+            className="block text-sm tracking-[0.4em] uppercase text-accent"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6, duration: 0.8 }}
@@ -55,14 +83,16 @@ export default function Login() {
         </div>
       </motion.div>
 
+      {/* Right form panel */}
       <motion.div
-        className="login-form-container"
+        className="flex items-center justify-center p-8 lg:p-16 bg-card"
         initial={{ opacity: 0, x: 50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <form className="login-form" onSubmit={handleSubmit}>
+        <form className="w-full max-w-sm" onSubmit={handleSubmit}>
           <motion.h2
+            className="font-display text-3xl font-normal mb-2"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
@@ -70,6 +100,7 @@ export default function Login() {
             Welcome back
           </motion.h2>
           <motion.p
+            className="text-text-secondary mb-8"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
@@ -79,7 +110,7 @@ export default function Login() {
 
           {error && (
             <motion.div
-              className="login-error"
+              className="mb-6 rounded-lg border border-error/30 bg-error/10 px-4 py-3 text-sm text-error"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
             >
@@ -88,13 +119,13 @@ export default function Login() {
           )}
 
           <motion.div
-            className="form-group"
+            className="mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <label htmlFor="email">Email Address</label>
-            <input
+            <Label htmlFor="email" className="mb-2 block">Email Address</Label>
+            <Input
               type="email"
               id="email"
               value={email}
@@ -105,13 +136,13 @@ export default function Login() {
           </motion.div>
 
           <motion.div
-            className="form-group"
+            className="mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <label htmlFor="password">Password</label>
-            <input
+            <Label htmlFor="password" className="mb-2 block">Password</Label>
+            <Input
               type="password"
               id="password"
               value={password}
@@ -122,40 +153,44 @@ export default function Login() {
           </motion.div>
 
           <motion.div
-            className="form-options"
+            className="mb-8 flex items-center justify-between"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
           >
-            <label className="checkbox-wrapper">
-              <input
-                type="checkbox"
+            <label className="flex cursor-pointer items-center gap-2">
+              <Checkbox
                 checked={remember}
-                onChange={(e) => setRemember(e.target.checked)}
+                onCheckedChange={(checked) => setRemember(checked)}
               />
-              <span>Remember me</span>
+              <span className="text-sm text-text-secondary">Remember me</span>
             </label>
-            <Link to="/forgot-password" className="forgot-link">Forgot password?</Link>
+            <Link
+              to="/forgot-password"
+              className="text-sm text-accent transition-colors hover:text-accent-light"
+            >
+              Forgot password?
+            </Link>
           </motion.div>
 
-          <motion.button
-            type="submit"
-            className="login-button"
-            disabled={isLoading}
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
           >
-            <span>
+            <Button
+              type="submit"
+              className="w-full"
+              size="lg"
+              disabled={isLoading}
+            >
               {isLoading ? (
-                <span className="loading-spinner" style={{ display: 'inline-block' }} />
+                <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-bg-tertiary border-t-bg-primary" />
               ) : (
                 'Sign In'
               )}
-            </span>
-          </motion.button>
+            </Button>
+          </motion.div>
         </form>
       </motion.div>
     </div>

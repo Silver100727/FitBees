@@ -5,7 +5,6 @@ import ForgotPassword from './pages/ForgotPassword';
 import DashboardLayout from './layouts/DashboardLayout';
 import Dashboard from './pages/Dashboard';
 import Placeholder from './pages/Placeholder';
-import './styles/components.css';
 
 function App() {
   return (
