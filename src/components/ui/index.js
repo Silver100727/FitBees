@@ -36,3 +36,23 @@ export {
   TableCaption,
 } from './table'
 export { Skeleton } from './skeleton'
+export {
+  Dialog,
+  DialogTrigger,
+  DialogPortal,
+  DialogOverlay,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from './dialog'
+export {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from './select'
+export { DatePicker } from './date-picker'
+export { NumberInput } from './number-input'

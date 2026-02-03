@@ -1,10 +1,22 @@
-import { Outlet, Navigate } from 'react-router-dom';
+import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Sidebar from '../components/Sidebar';
-import { Skeleton } from '@/components/ui';
+import Topbar from '../components/Topbar';
+
+const pageConfig = {
+  '/dashboard': { title: 'Dashboard', breadcrumbs: [] },
+  '/dashboard/client': { title: 'Client', breadcrumbs: ['Client'] },
+  '/dashboard/staff-trainer': { title: 'Staff Trainer', breadcrumbs: ['Staff Trainer'] },
+  '/dashboard/payments': { title: 'Payments', breadcrumbs: ['Payments'] },
+  '/dashboard/reports': { title: 'Reports', breadcrumbs: ['Reports'] },
+};
 
 export default function DashboardLayout() {
   const { user, isLoading } = useAuth();
+  const location = useLocation();
+
+  const config = pageConfig[location.pathname] || { title: 'Dashboard', breadcrumbs: [] };
+  const { title, breadcrumbs } = config;
 
   if (isLoading) {
     return (
@@ -25,6 +37,7 @@ export default function DashboardLayout() {
     <div className="min-h-screen" style={{ background: 'var(--color-bg-primary)' }}>
       <Sidebar />
       <main className="min-h-screen overflow-x-hidden" style={{ marginLeft: '220px', background: 'var(--color-bg-primary)' }}>
+        <Topbar title={title} breadcrumbs={breadcrumbs} />
         <Outlet />
       </main>
       <div className="noise-overlay" />

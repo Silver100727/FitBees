@@ -135,11 +135,120 @@ const api = {
     ];
   },
 
-  async fetchClients() {
-    await new Promise(resolve => setTimeout(resolve, 500));
+  async fetchClients(page = 1, search = '') {
+    await new Promise(resolve => setTimeout(resolve, 400));
+    const allClients = [
+      {
+        id: 1,
+        name: 'Sarah Johnson',
+        email: 'sarah.j@email.com',
+        phone: '+1 (555) 123-4567',
+        initials: 'SJ',
+        membership: 'Premium',
+        status: 'Active',
+        trainer: 'Mike Chen',
+        joinDate: 'Jan 15, 2024',
+        lastVisit: '2 hours ago',
+      },
+      {
+        id: 2,
+        name: 'David Wilson',
+        email: 'david.w@email.com',
+        phone: '+1 (555) 234-5678',
+        initials: 'DW',
+        membership: 'Basic',
+        status: 'Active',
+        trainer: 'Lisa Park',
+        joinDate: 'Feb 20, 2024',
+        lastVisit: '1 day ago',
+      },
+      {
+        id: 3,
+        name: 'Emma Davis',
+        email: 'emma.d@email.com',
+        phone: '+1 (555) 345-6789',
+        initials: 'ED',
+        membership: 'Premium',
+        status: 'Active',
+        trainer: 'Mike Chen',
+        joinDate: 'Mar 10, 2024',
+        lastVisit: '3 hours ago',
+      },
+      {
+        id: 4,
+        name: 'James Miller',
+        email: 'james.m@email.com',
+        phone: '+1 (555) 456-7890',
+        initials: 'JM',
+        membership: 'Standard',
+        status: 'Inactive',
+        trainer: 'John Smith',
+        joinDate: 'Dec 05, 2023',
+        lastVisit: '2 weeks ago',
+      },
+      {
+        id: 5,
+        name: 'Olivia Brown',
+        email: 'olivia.b@email.com',
+        phone: '+1 (555) 567-8901',
+        initials: 'OB',
+        membership: 'Premium',
+        status: 'Active',
+        trainer: 'Lisa Park',
+        joinDate: 'Apr 18, 2024',
+        lastVisit: '5 hours ago',
+      },
+      {
+        id: 6,
+        name: 'Michael Taylor',
+        email: 'michael.t@email.com',
+        phone: '+1 (555) 678-9012',
+        initials: 'MT',
+        membership: 'Basic',
+        status: 'Expired',
+        trainer: 'Mike Chen',
+        joinDate: 'Nov 22, 2023',
+        lastVisit: '1 month ago',
+      },
+      {
+        id: 7,
+        name: 'Sophia Anderson',
+        email: 'sophia.a@email.com',
+        phone: '+1 (555) 789-0123',
+        initials: 'SA',
+        membership: 'Standard',
+        status: 'Active',
+        trainer: 'John Smith',
+        joinDate: 'May 30, 2024',
+        lastVisit: '1 day ago',
+      },
+      {
+        id: 8,
+        name: 'William Martinez',
+        email: 'william.m@email.com',
+        phone: '+1 (555) 890-1234',
+        initials: 'WM',
+        membership: 'Premium',
+        status: 'Active',
+        trainer: 'Lisa Park',
+        joinDate: 'Jun 12, 2024',
+        lastVisit: '6 hours ago',
+      },
+    ];
+
+    let filtered = allClients;
+    if (search) {
+      const s = search.toLowerCase();
+      filtered = allClients.filter(c =>
+        c.name.toLowerCase().includes(s) ||
+        c.email.toLowerCase().includes(s) ||
+        c.phone.includes(s)
+      );
+    }
+
     return {
-      data: [],
-      pagination: { page: 1, limit: 10, total: 0 },
+      data: filtered,
+      pagination: { page, limit: 10, total: filtered.length, totalPages: 1 },
     };
   },
 
@@ -157,6 +266,62 @@ const api = {
     await new Promise(resolve => setTimeout(resolve, 500));
     return { success: true };
   },
+
+  async fetchNotifications() {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return [
+      {
+        id: 1,
+        type: 'client',
+        title: 'New Client Registration',
+        message: 'Sarah Johnson has registered as a new client',
+        time: '2 min ago',
+        read: false,
+      },
+      {
+        id: 2,
+        type: 'trainer',
+        title: 'Trainer Session Complete',
+        message: 'Mike Chen completed a session with 3 clients',
+        time: '15 min ago',
+        read: false,
+      },
+      {
+        id: 3,
+        type: 'payment',
+        title: 'Payment Received',
+        message: '$450 payment from David Wilson',
+        time: '1 hour ago',
+        read: false,
+      },
+      {
+        id: 4,
+        type: 'alert',
+        title: 'Membership Expiring',
+        message: '5 client memberships expire this week',
+        time: '2 hours ago',
+        read: true,
+      },
+      {
+        id: 5,
+        type: 'client',
+        title: 'Client Check-in',
+        message: 'Emma Davis checked in for her session',
+        time: '3 hours ago',
+        read: true,
+      },
+    ];
+  },
+
+  async markNotificationRead(id) {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    return { success: true, id };
+  },
+
+  async markAllNotificationsRead() {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    return { success: true };
+  },
 };
 
 // Query Keys
@@ -166,6 +331,7 @@ export const queryKeys = {
   revenueData: (period) => ['revenue', period],
   activities: ['activities'],
   clients: (page) => ['clients', page],
+  notifications: ['notifications'],
 };
 
 // Dashboard Stats Hook
@@ -201,10 +367,10 @@ export function useActivities() {
 }
 
 // Clients Hooks
-export function useClients(page = 1) {
+export function useClients(page = 1, search = '') {
   return useQuery({
-    queryKey: queryKeys.clients(page),
-    queryFn: () => api.fetchClients(page),
+    queryKey: [...queryKeys.clients(page), search],
+    queryFn: () => api.fetchClients(page, search),
   });
 }
 
@@ -237,6 +403,36 @@ export function useDeleteClient() {
     mutationFn: api.deleteClient,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clients'] });
+    },
+  });
+}
+
+// Notifications Hooks
+export function useNotifications() {
+  return useQuery({
+    queryKey: queryKeys.notifications,
+    queryFn: api.fetchNotifications,
+  });
+}
+
+export function useMarkNotificationRead() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: api.markNotificationRead,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications });
+    },
+  });
+}
+
+export function useMarkAllNotificationsRead() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: api.markAllNotificationsRead,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications });
     },
   });
 }
